@@ -14,6 +14,6 @@ Requirements
 
 * Python 3.9+
 * FastAPI
-* scikit-learn (or your ML framework)
+* scikit-learn (or ML framework)
 * Uvicorn
 
