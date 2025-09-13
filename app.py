@@ -10,9 +10,7 @@ app = FastAPI(title="Ahadu SentriAI - Threat Detection API",
               version="1.0.0")
 
 # Load the trained model and scaler
-
-
-
+model = joblib.load("trained_model.ipynb")
 
 app = FastAPI()
 
