@@ -1,8 +1,13 @@
-from fastapi import FastAPI
-from features import extract_features
-from model import model
-from policy import decide
-import actions
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import joblib
+import pandas as pd
+import numpy as np
+
+# Initialize FastAPI app
+app = FastAPI(title="Ahadu SentriAI - Threat Detection API",
+              description="AI-powered security model for anomaly detection",
+              version="1.0.0")
 
 # Load the trained model and scaler
 
