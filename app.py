@@ -39,7 +39,7 @@ async def ingest(event: dict):
   # Return the prediction and probability
 
 
-from utils import decide, extract_features
+from utils import compute_score
 import actions
 
 def handle_event(event):
