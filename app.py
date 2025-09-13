@@ -39,6 +39,13 @@ async def ingest(event: dict):
   # Return the prediction and probability
 
 
+from utils import decide, extract_features
+import actions
+
+def handle_event(event):
+    features = extract_features(event)
+    score = compute_score(features)  # assume this is defined
+    decision = decide(score, features)
 
     if decision == "isolate":
         actions.isolate_endpoint(event)
