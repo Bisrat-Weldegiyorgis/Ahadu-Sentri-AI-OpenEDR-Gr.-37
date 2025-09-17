@@ -6,7 +6,7 @@ import numpy as np
 
 # Initialize FastAPI app
 app = FastAPI(title="Ahadu SentriAI - Threat Detection API",
-              description="AI-powered security model for anomaly detection",
+              description="AI-powered security model for anomaly detection and response",
               version="1.0.0")
 
 # Load the trained model and scaler
