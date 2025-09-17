@@ -17,3 +17,5 @@ Requirements
 * scikit-learn (or ML framework)
 * Uvicorn
 
+Installation process 
+ 1. Clone the repository
