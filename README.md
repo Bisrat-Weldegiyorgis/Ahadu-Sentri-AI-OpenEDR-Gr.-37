@@ -19,6 +19,5 @@ Requirements
 
 Installation process 
  1. Clone the repository
-
-https://github.com/Bisrat-Weldegiyorgis/Ahadu-Sentri-AI-OpenEDR-Gr.-37.git 
+                  https://github.com/Bisrat-Weldegiyorgis/Ahadu-Sentri-AI-OpenEDR-Gr.-37.git 
 
