@@ -49,4 +49,5 @@ async def ingest(event: Event):
     features = extract_features(event)
     prediction = model.predict(features)
     decision = decide(prediction)
-    return {"decision": decision, "prediction": prediction.tolist()}
+    return {"decision": decision, "prediction": list(prediction)}
+
