@@ -4,52 +4,59 @@ import joblib
 import numpy as np
 
 
-# Load trained pipeline
+# Define your input data model
 
-try:
-    pipeline = joblib.load("trained_model.pkl")  # includes scaler + model
-except Exception as e:
-    raise RuntimeError(f" Failed to load model: {e}")
+class Event(BaseModel):
+    feature1: float
+    feature2: float
+    feature3: float
+    # Add more features as needed
 
 
 # Initialize FastAPI app
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
-    description="AI-powered anomaly detection using ML pipeline (scaler + model).",
+    description="AI-powered security model for anomaly detection and response",
     version="1.0.0"
 )
 
 
-# Define Input Schema
+# Load trained pipeline
 
-class EventData(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
+try:
+    pipeline = joblib.load("trained_model.pkl")  # Make sure this file exists
+except Exception as e:
+    raise RuntimeError(f"Failed to load model: {e}")
 
 
-# Predict Endpoint
+# Prediction endpoint
 
 @app.post("/predict")
-async def predict(data: EventData):
+async def predict(event: Event):
     try:
-        # Convert input to array
-        features = np.array([[data.feature1, data.feature2, data.feature3]])
-
-        # Run through pipeline (scaler + model)
+        # Extract features from request
+        features = np.array([[
+            event.feature1,
+            event.feature2,
+            event.feature3
+            # add more features here in same order as training
+        ]])
+        
+        # Predict using the pipeline (scaler + model)
         prediction = pipeline.predict(features)[0]
-        probability = pipeline.predict_proba(features).max()
-
+        probabilities = pipeline.predict_proba(features)[0].tolist()
+        
         return {
             "prediction": int(prediction),
-            "probability": float(probability)
+            "probabilities": probabilities
         }
-
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"Prediction error: {e}")
 
+
+# Health check endpoint
 
 @app.get("/")
-def root():
-    return {"message": " Ahadu SentriAI API is running!"}
+async def root():
+    return {"message": "Ahadu SentriAI API is running!"}
