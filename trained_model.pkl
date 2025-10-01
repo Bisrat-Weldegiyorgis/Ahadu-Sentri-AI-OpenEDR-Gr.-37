@@ -1901,52 +1901,65 @@
       "source": [
         "import pandas as pd\n",
         "import numpy as np\n",
-        "from sklearn.model_selection import train_test_split\n",
+        "\n",
+        "# Example dummy data\n",
+        "np.random.seed(42)\n",
+        "df = pd.DataFrame({\n",
+        "    'feature1': np.random.rand(100),\n",
+        "    'feature2': np.random.rand(100),\n",
+        "    'feature3': np.random.rand(100),\n",
+        "    'label': np.random.randint(0, 2, size=100)  # 0 or 1\n",
+        "})\n",
+        "X_train = df[['feature1', 'feature2', 'feature3']]\n",
+        "y_train = df['label']\n"
+      ],
+      "metadata": {
+        "id": "0T9NBD_leFc3"
+      },
+      "execution_count": 17,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
         "from sklearn.preprocessing import StandardScaler\n",
         "from sklearn.linear_model import LogisticRegression\n",
         "from sklearn.pipeline import Pipeline\n",
         "import joblib\n",
         "\n",
-        "# Example synthetic dataset (replace this with your real data)\n",
-        "X = pd.DataFrame({\n",
-        "    \"feature1\": np.random.rand(100),\n",
-        "    \"feature2\": np.random.rand(100),\n",
-        "    \"feature3\": np.random.rand(100)\n",
-        "})\n",
-        "y = np.random.randint(0, 2, 100)  # binary labels (0/1)\n",
         "\n",
-        "# Train/test split\n",
-        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
-        "\n",
-        "# Build pipeline (scaler + logistic regression)\n",
+        "# Create a pipeline\n",
         "pipeline = Pipeline([\n",
-        "    (\"scaler\", StandardScaler()),\n",
-        "    (\"model\", LogisticRegression())\n",
+        "    ('scaler', StandardScaler()),\n",
+        "    ('model', LogisticRegression())\n",
         "])\n",
         "\n",
-        "# Train pipeline\n",
+        "# Train\n",
         "pipeline.fit(X_train, y_train)\n",
         "\n",
-        "# Save pipeline (includes scaler + model in one file)\n",
+        "# Save pipeline\n",
         "joblib.dump(pipeline, \"trained_model.pkl\")\n",
-        "\n",
-        "print(\"✅ Model trained and saved as trained_model.pkl\")\n"
+        "\n"
       ],
       "metadata": {
-        "id": "2Hr2c71GUF4-",
-        "outputId": "003731d5-e857-487a-c9a2-d5a5bf132543",
+        "id": "KwVVNgKRcU-o",
+        "outputId": "15e31cfa-7834-4ef7-c752-756b305afa83",
         "colab": {
           "base_uri": "https://localhost:8080/"
         }
       },
-      "execution_count": 9,
+      "execution_count": 18,
       "outputs": [
         {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "✅ Model trained and saved as trained_model.pkl\n"
-          ]
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['trained_model.pkl']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 18
         }
       ]
     }
