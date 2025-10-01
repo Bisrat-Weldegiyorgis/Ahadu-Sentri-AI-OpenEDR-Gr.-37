@@ -11,8 +11,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Load the trained model and scaler
-pipeline = joblib.load("trained_model.pkl")
+# Load the full pipeline
+pipeline = joblib.load("pipeline.pkl")
+
+# Example input
+features = np.array([[5.1, 3.5, 1.4, 0.2]])
+
+# Predict directly using pipeline
+prediction = pipeline.predict(features)[0]
+probability = pipeline.predict_proba(features)[0][prediction]
 
 # Define input schema using Pydantic
 class Event(BaseModel):
