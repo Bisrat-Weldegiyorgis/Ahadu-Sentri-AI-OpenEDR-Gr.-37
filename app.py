@@ -12,8 +12,7 @@ app = FastAPI(
 )
 
 # Load the trained model and scaler
-model = joblib.load("trained_model.pkl")
-scaler = joblib.load("scaler.pkl")
+pipeline = joblib.load("trained_model.pkl")
 
 # Define input schema using Pydantic
 class Event(BaseModel):
