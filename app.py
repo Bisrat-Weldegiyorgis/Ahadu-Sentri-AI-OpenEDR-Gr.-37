@@ -1,52 +1,61 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
-import pandas as pd
 import numpy as np
 
 # Initialize FastAPI app
-app = FastAPI(title="Ahadu SentriAI - Threat Detection API",
-              description="AI-powered security model for anomaly detection and response",
-              version="1.0.0")
+app = FastAPI(
+    title="Ahadu SentriAI - Threat Detection API",
+    description="AI-powered security model for anomaly detection and response. "
+                "A lightweight API for serving endpoint telemetry ML models (Ahadu SentriAI).",
+    version="1.0.0"
+)
 
 # Load the trained model and scaler
 model = joblib.load("trained_model.pkl")
-scaler = joblib.load('scaler.pkl')
+scaler = joblib.load("scaler.pkl")
 
-app = FastAPI()
+# Define input schema using Pydantic
+class Event(BaseModel):
+    feature1: float
+    feature2: float
+    feature3: float
 
+# Utility function: extract features into numpy array
+def extract_features(event: Event):
+    return np.array([[event.feature1, event.feature2, event.feature3]])
 
-
-
-# Define the input data model with all features
-
-
-
-@app.post("/ingest")
-async def ingest(event: dict):
-    features = extract_features(event)
-    score = model.score(features)
-    decision = decide(score, features)
-
-# Convert the incoming data to a DataFrame
-
-
- # Preprocess the data
-
-
- # Make a prediction
-
-
-  # Return the prediction and probability
-
-def extract_features(event):
-    # Example: extract numerical features from event dictionary
-    return [event.get('feature1', 0), event.get('feature2', 0), event.get('feature3', 0)]
-
-def decide(score, features):
-    # Example: make a decision based on score and features
-    if score > 0.8 and sum(features) > 10:
-        return "approve"
+# Decision logic
+def decide(prediction, probability, features):
+    if prediction == 1 and probability > 0.8:
+        return "threat_detected"
+    elif prediction == 1:
+        return "suspicious"
     else:
-        return "reject"
+        return "safe"
 
+# API Endpoint
+@app.post("/ingest")
+async def ingest(event: Event):
+    try:
+        # Extract features
+        features = extract_features(event)
+
+        # Scale features
+        features_scaled = scaler.transform(features)
+
+        # Make prediction
+        prediction = model.predict(features_scaled)[0]
+        probability = model.predict_proba(features_scaled)[0][prediction]
+
+        # Decision
+        decision = decide(prediction, probability, features[0])
+
+        return {
+            "prediction": int(prediction),
+            "probability": float(probability),
+            "decision": decision
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
