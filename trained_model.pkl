@@ -1493,7 +1493,7 @@
         "    ]\n",
         ")\n",
         "\n",
-        "print(\" Split ready: X_train, X_val, y_train, y_val\")\n",
+        "print(\"✅ Split ready: X_train, X_val, y_train, y_val\")\n",
         "print(\"Train shape:\", X_train.shape, \"| Validation shape:\", X_val.shape)\n"
       ],
       "metadata": {
@@ -1509,7 +1509,7 @@
           "output_type": "stream",
           "name": "stdout",
           "text": [
-            " Split ready: X_train, X_val, y_train, y_val\n",
+            "✅ Split ready: X_train, X_val, y_train, y_val\n",
             "Train shape: (100778, 42) | Validation shape: (25195, 42)\n"
           ]
         }
@@ -1552,8 +1552,8 @@
         "y_pred = rf_pipeline.predict(X_val)\n",
         "\n",
         "# Evaluate\n",
-        "print(\" Accuracy:\", accuracy_score(y_val, y_pred))\n",
-        "print(\"\\n Classification Report:\\n\", classification_report(y_val, y_pred))\n"
+        "print(\"✅ Accuracy:\", accuracy_score(y_val, y_pred))\n",
+        "print(\"\\n📊 Classification Report:\\n\", classification_report(y_val, y_pred))\n"
       ],
       "metadata": {
         "colab": {
@@ -1568,9 +1568,9 @@
           "output_type": "stream",
           "name": "stdout",
           "text": [
-            " Accuracy: 0.9989680492161143\n",
+            "✅ Accuracy: 0.9989680492161143\n",
             "\n",
-            " Classification Report:\n",
+            "📊 Classification Report:\n",
             "                  precision    recall  f1-score   support\n",
             "\n",
             "           back       0.99      1.00      1.00       191\n",
@@ -1666,8 +1666,8 @@
         "y_pred = rf_pipeline.predict(X_val)\n",
         "\n",
         "#step 6: Evaluate\n",
-        "print(\"\\n Accuracy:\", accuracy_score(y_val_mapped, y_pred))\n",
-        "print(\"\\n Classification Report:\\n\", classification_report(y_val_mapped, y_pred))"
+        "print(\"\\n✅ Accuracy:\", accuracy_score(y_val_mapped, y_pred))\n",
+        "print(\"\\n📊 Classification Report:\\n\", classification_report(y_val_mapped, y_pred))"
       ],
       "metadata": {
         "colab": {
@@ -1696,9 +1696,9 @@
             "phishing       14\n",
             "Name: count, dtype: int64\n",
             "\n",
-            " Accuracy: 0.9995634054375868\n",
+            "✅ Accuracy: 0.9995634054375868\n",
             "\n",
-            " Classification Report:\n",
+            "📊 Classification Report:\n",
             "               precision    recall  f1-score   support\n",
             "\n",
             "      benign       1.00      1.00      1.00     13469\n",
@@ -1758,7 +1758,7 @@
         "print(history_log.head())\n",
         "\n",
         "# --- 4. Classification report (again, now with decisions) ---\n",
-        "print(\"\\n Classification Report (with decisions):\\n\", classification_report(y_true, y_pred))\n",
+        "print(\"\\n📊 Classification Report (with decisions):\\n\", classification_report(y_true, y_pred))\n",
         "\n",
         "# --- 5. Confusion matrix heatmap ---\n",
         "cm = confusion_matrix(y_true, y_pred, labels=rf_pipeline.classes_)\n",
@@ -1800,7 +1800,7 @@
             "3        ALLOW  \n",
             "4        BLOCK  \n",
             "\n",
-            " Classification Report (with decisions):\n",
+            "📊 Classification Report (with decisions):\n",
             "               precision    recall  f1-score   support\n",
             "\n",
             "      benign       1.00      1.00      1.00     13469\n",
@@ -1899,42 +1899,53 @@
     {
       "cell_type": "code",
       "source": [
-        "from sklearn.datasets import load_iris\n",
-        "from sklearn.pipeline import make_pipeline\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from sklearn.model_selection import train_test_split\n",
         "from sklearn.preprocessing import StandardScaler\n",
         "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.pipeline import Pipeline\n",
         "import joblib\n",
         "\n",
-        "# Load data\n",
-        "X, y = load_iris(return_X_y=True)\n",
+        "# Example synthetic dataset (replace this with your real data)\n",
+        "X = pd.DataFrame({\n",
+        "    \"feature1\": np.random.rand(100),\n",
+        "    \"feature2\": np.random.rand(100),\n",
+        "    \"feature3\": np.random.rand(100)\n",
+        "})\n",
+        "y = np.random.randint(0, 2, 100)  # binary labels (0/1)\n",
         "\n",
-        "# Create and train pipeline\n",
-        "pipeline = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))\n",
-        "pipeline.fit(X, y)\n",
+        "# Train/test split\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
         "\n",
-        "# Save pipeline\n",
-        "joblib.dump(pipeline, 'trained_model.pkl')\n",
+        "# Build pipeline (scaler + logistic regression)\n",
+        "pipeline = Pipeline([\n",
+        "    (\"scaler\", StandardScaler()),\n",
+        "    (\"model\", LogisticRegression())\n",
+        "])\n",
         "\n",
-        "# Check accuracy\n",
-        "accuracy = pipeline.score(X, y)\n",
-        "print(f\"Training accuracy: {accuracy:.2f}\")\n",
+        "# Train pipeline\n",
+        "pipeline.fit(X_train, y_train)\n",
         "\n",
-        "\n"
+        "# Save pipeline (includes scaler + model in one file)\n",
+        "joblib.dump(pipeline, \"trained_model.pkl\")\n",
+        "\n",
+        "print(\"✅ Model trained and saved as trained_model.pkl\")\n"
       ],
       "metadata": {
-        "id": "5FoSbeFmA1wC",
-        "outputId": "b125514b-d111-4f7e-fac1-1f453ba42896",
+        "id": "2Hr2c71GUF4-",
+        "outputId": "003731d5-e857-487a-c9a2-d5a5bf132543",
         "colab": {
           "base_uri": "https://localhost:8080/"
         }
       },
-      "execution_count": 1,
+      "execution_count": 9,
       "outputs": [
         {
           "output_type": "stream",
           "name": "stdout",
           "text": [
-            "Training accuracy: 0.97\n"
+            "✅ Model trained and saved as trained_model.pkl\n"
           ]
         }
       ]
