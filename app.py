@@ -30,6 +30,18 @@ except Exception as e:
     raise RuntimeError(f"Failed to load model: {e}")
 
 
+
+ @app.post("/ingest")
+async def ingest(event: dict):
+    try:
+        features = extract_features(event)
+        features_scaled = pipeline.named_steps["scaler"].transform([features])
+        prediction = pipeline.named_steps["model"].predict(features_scaled)[0]
+        decision = "approve" if prediction == 1 else "reject"
+        return {"decision": decision}
+    except Exception as e:
+        return {"error": str(e)}
+
 # Prediction endpoint
 
 @app.post("/predict")
