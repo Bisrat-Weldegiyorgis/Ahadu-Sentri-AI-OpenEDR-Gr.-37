@@ -20,6 +20,21 @@ class Event(BaseModel):
     feature2: Optional[float] = 0
     feature3: Optional[float] = 0
 
+
+def convert_to_dataframe(incoming_data):
+    """
+    Convert incoming data to pandas DataFrame
+    """
+    if isinstance(incoming_data, dict):
+        df = pd.DataFrame([incoming_data])
+        return df
+    elif isinstance(incoming_data, list):
+        df = pd.DataFrame(incoming_data)
+        return df
+    else:
+        raise ValueError("Data must be a dictionary or list of dictionaries")
+# Define the input data model with all feature
+
 # Lazy-load the pipeline
 def load_pipeline():
     global pipeline
