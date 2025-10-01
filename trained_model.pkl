@@ -1552,8 +1552,8 @@
         "y_pred = rf_pipeline.predict(X_val)\n",
         "\n",
         "# Evaluate\n",
-        "print(\"✅ Accuracy:\", accuracy_score(y_val, y_pred))\n",
-        "print(\"\\n📊 Classification Report:\\n\", classification_report(y_val, y_pred))\n"
+        "print(\" Accuracy:\", accuracy_score(y_val, y_pred))\n",
+        "print(\"\\n Classification Report:\\n\", classification_report(y_val, y_pred))\n"
       ],
       "metadata": {
         "colab": {
@@ -1899,6 +1899,29 @@
     {
       "cell_type": "code",
       "source": [
+        "pip install scikit-learn==<version_used_in_colab> pandas joblib\n"
+      ],
+      "metadata": {
+        "id": "dYZV3v_qhd5Y",
+        "outputId": "f122bbd8-9871-4910-c28a-d4a36f9debf3",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "/bin/bash: line 1: version_used_in_colab: No such file or directory\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
         "import pandas as pd\n",
         "import numpy as np\n",
         "\n",
@@ -1922,34 +1945,41 @@
     {
       "cell_type": "code",
       "source": [
-        "import pandas as pd\n",
         "from sklearn.preprocessing import StandardScaler\n",
         "from sklearn.linear_model import LogisticRegression\n",
         "from sklearn.pipeline import Pipeline\n",
         "import joblib\n",
+        "import pandas as pd\n",
         "\n",
+        "# Example: create dummy training data\n",
+        "X_train = pd.DataFrame({\n",
+        "    \"feature1\": [1, 2, 3, 4],\n",
+        "    \"feature2\": [4, 3, 2, 1],\n",
+        "    \"feature3\": [5, 6, 7, 8]\n",
+        "})\n",
+        "y_train = [0, 1, 0, 1]\n",
         "\n",
-        "# Create a pipeline\n",
+        "# Build pipeline\n",
         "pipeline = Pipeline([\n",
-        "    ('scaler', StandardScaler()),\n",
-        "    ('model', LogisticRegression())\n",
+        "    (\"scaler\", StandardScaler()),\n",
+        "    (\"model\", LogisticRegression())\n",
         "])\n",
         "\n",
         "# Train\n",
         "pipeline.fit(X_train, y_train)\n",
         "\n",
-        "# Save pipeline\n",
+        "# Save pickle\n",
         "joblib.dump(pipeline, \"trained_model.pkl\")\n",
         "\n"
       ],
       "metadata": {
-        "id": "KwVVNgKRcU-o",
-        "outputId": "15e31cfa-7834-4ef7-c752-756b305afa83",
         "colab": {
           "base_uri": "https://localhost:8080/"
-        }
+        },
+        "id": "KwVVNgKRcU-o",
+        "outputId": "eef6cde9-ff5b-481b-8a50-d329ded61e59"
       },
-      "execution_count": 18,
+      "execution_count": 19,
       "outputs": [
         {
           "output_type": "execute_result",
@@ -1959,7 +1989,7 @@
             ]
           },
           "metadata": {},
-          "execution_count": 18
+          "execution_count": 19
         }
       ]
     }
