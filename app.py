@@ -1,8 +1,9 @@
-# app.py
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Optional
 import joblib
 import os
+import numpy as np
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
@@ -10,13 +11,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Global placeholder for the pipeline
+# Global pipeline variable
 pipeline = None
 
+# Pydantic model with optional features
+class Event(BaseModel):
+    feature1: Optional[float] = 0
+    feature2: Optional[float] = 0
+    feature3: Optional[float] = 0
+
+# Lazy-load the pipeline
 def load_pipeline():
-    """
-    Lazy-load the model pipeline on first use.
-    """
     global pipeline
     if pipeline is None:
         model_path = "trained_model.pkl"
@@ -28,31 +33,20 @@ def load_pipeline():
             raise RuntimeError(f"Failed to load model: {e}")
     return pipeline
 
-# Define input data model
-class Event(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
-
+# Extract features from the Pydantic model
 def extract_features(event: Event):
-    """
-    Convert Event into feature list for prediction
-    """
-    return [event.feature1, event.feature2, event.feature3]
+    return np.array([[event.feature1, event.feature2, event.feature3]])
 
+# Make decision based on prediction
+def decide(prediction):
+    # Example logic
+    return "approve" if prediction[0] == 1 else "reject"
+
+# Ingest endpoint
 @app.post("/ingest")
 async def ingest(event: Event):
-    """
-    Endpoint to receive event and return decision
-    """
     model = load_pipeline()
     features = extract_features(event)
-
-    try:
-        # Make prediction using pipeline
-        pred = model.predict([features])[0]
-        decision = "approve" if pred == 1 else "reject"
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
-
-    return {"decision": decision}
+    prediction = model.predict(features)
+    decision = decide(prediction)
+    return {"decision": decision, "prediction": prediction.tolist()}
