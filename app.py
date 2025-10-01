@@ -1,19 +1,8 @@
+# app.py
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
-import numpy as np
-
-
-# Define your input data model
-
-class Event(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
-    # Add more features as needed
-
-
-# Initialize FastAPI app
+import os
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
@@ -21,54 +10,49 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Global placeholder for the pipeline
+pipeline = None
 
-# Load trained pipeline
+def load_pipeline():
+    """
+    Lazy-load the model pipeline on first use.
+    """
+    global pipeline
+    if pipeline is None:
+        model_path = "trained_model.pkl"
+        if not os.path.exists(model_path):
+            raise RuntimeError(f"Model file '{model_path}' not found.")
+        try:
+            pipeline = joblib.load(model_path)
+        except Exception as e:
+            raise RuntimeError(f"Failed to load model: {e}")
+    return pipeline
 
-try:
-    pipeline = joblib.load("trained_model.pkl")  # Make sure this file exists
-except Exception as e:
-    raise RuntimeError(f"Failed to load model: {e}")
+# Define input data model
+class Event(BaseModel):
+    feature1: float
+    feature2: float
+    feature3: float
 
+def extract_features(event: Event):
+    """
+    Convert Event into feature list for prediction
+    """
+    return [event.feature1, event.feature2, event.feature3]
 
+@app.post("/ingest")
+async def ingest(event: Event):
+    """
+    Endpoint to receive event and return decision
+    """
+    model = load_pipeline()
+    features = extract_features(event)
 
- @app.post("/ingest")
-async def ingest(event: dict):
     try:
-        features = extract_features(event)
-        features_scaled = pipeline.named_steps["scaler"].transform([features])
-        prediction = pipeline.named_steps["model"].predict(features_scaled)[0]
-        decision = "approve" if prediction == 1 else "reject"
-        return {"decision": decision}
+        # Make prediction using pipeline
+        pred = model.predict([features])[0]
+        decision = "approve" if pred == 1 else "reject"
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
 
-# Prediction endpoint
-
-@app.post("/predict")
-async def predict(event: Event):
-    try:
-        # Extract features from request
-        features = np.array([[
-            event.feature1,
-            event.feature2,
-            event.feature3
-            # add more features here in same order as training
-        ]])
-        
-        # Predict using the pipeline (scaler + model)
-        prediction = pipeline.predict(features)[0]
-        probabilities = pipeline.predict_proba(features)[0].tolist()
-        
-        return {
-            "prediction": int(prediction),
-            "probabilities": probabilities
-        }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Prediction error: {e}")
-
-
-# Health check endpoint
-
-@app.get("/")
-async def root():
-    return {"message": "Ahadu SentriAI API is running!"}
+    return {"decision": decision}
