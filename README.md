@@ -22,4 +22,21 @@ Installation process
      ```bash
      https://github.com/Bisrat-Weldegiyorgis/Ahadu-Sentri-AI-OpenEDR-Gr.-37.git
      ```
+2. **Create and activate a virtual environment:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
+3. **Install the required packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Run the FastAPI application:**
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+5. **Access the API:**
+   Open your browser and go to `http://127.0.0.1:8000/docs` to view the interactive API documentation.
