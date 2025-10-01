@@ -39,20 +39,14 @@ async def ingest(event: dict):
 
   # Return the prediction and probability
 
+def extract_features(event):
+    # Example: extract numerical features from event dictionary
+    return [event.get('feature1', 0), event.get('feature2', 0), event.get('feature3', 0)]
 
-from utils import compute_score
-import actions
-
-def handle_event(event):
-    features = extract_features(event)
-    score = compute_score(features)  # assume this is defined
-    decision = decide(score, features)
-
-    if decision == "isolate":
-        actions.isolate_endpoint(event)
-    elif decision == "notify":
-        actions.notify_admin(event, score)
+def decide(score, features):
+    # Example: make a decision based on score and features
+    if score > 0.8 and sum(features) > 10:
+        return "approve"
     else:
-        actions.allow(event)
+        return "reject"
 
-    return {"score": score, "decision": decision}
