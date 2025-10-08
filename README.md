@@ -18,7 +18,7 @@ Requirements
 * Uvicorn
 
 Installation process 
- 1. **Clone the repository**
+1. **Clone the repository**
      ```bash
      git clone https://github.com/Bisrat-Weldegiyorgis/Ahadu-Sentri-AI-OpenEDR-Gr.-37.git
      ```
@@ -26,18 +26,18 @@ Installation process
      ```bash
      cd Ahadu-Sentri-AI-OpenEDR-Gr.-37
      ```
-3. **Create and activate a virtual environment:**
+2. **Create and activate a virtual environment:**
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-4. **Install the required packages:**
+3. **Install the required packages:**
    ```bash
    pip install -r requirements.txt
    ```
 
-5. **Run the FastAPI application:**
+4. **Run the FastAPI application:**
    ```bash
    uvicorn app:app
     ```
