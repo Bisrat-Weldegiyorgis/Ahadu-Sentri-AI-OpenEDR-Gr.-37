@@ -7,31 +7,25 @@ import numpy as np
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
-    description="AI-powered security model for anomaly detection and response",
+    description="AI-powered security model for anomaly detection and response: 
+    The Threat Detection API is a robust, AI-powered endpoint designed to analyze incoming data and identify potential security threats in real time. 
+    Built with FastAPI and integrated with a trained machine learning model, it enables automated decision-making for cybersecurity workflows, intrusion detection systems, and enterprise-grade monitoring tools.",
     version="1.0.0"
 )
 
-# Global pipeline variable
-pipeline = None
+from pydantic import BaseModel
 
-# Pydantic model with optional features
-class Event(BaseModel):
-    feature1: Optional[float] = 0
-    feature2: Optional[float] = 0
-    feature3: Optional[float] = 0
+class InputData(BaseModel):
+    feature1: float
+    feature2: float
+    feature2: float
+   
 
-# Lazy-load the pipeline
-def load_pipeline():
-    global pipeline
-    if pipeline is None:
-        model_path = "trained_model.pkl"
-        if not os.path.exists(model_path):
-            raise RuntimeError(f"Model file '{model_path}' not found.")
-        try:
-            pipeline = joblib.load(model_path)
-        except Exception as e:
-            raise RuntimeError(f"Failed to load model: {e}")
-    return pipeline
+# load
+
+model = joblib.load("model/model.pkl")
+scaler = joblib.load("model/scaler.pkl")  # if you use a scaler
+
 
 # Extract features from the Pydantic model
 def extract_features(event: Event):
