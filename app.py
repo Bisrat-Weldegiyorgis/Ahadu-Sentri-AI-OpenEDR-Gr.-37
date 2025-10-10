@@ -5,7 +5,7 @@ import numpy as np
 
 # Load model and scaler
 model = joblib.load("trained_model.pkl")
-scaler = joblib.load("trained_scaler.pkl")
+scaler = joblib.load("scaler.pkl")
 
 # Define input schema
 class InputData(BaseModel):
