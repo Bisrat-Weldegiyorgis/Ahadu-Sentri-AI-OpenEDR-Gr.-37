@@ -5,7 +5,7 @@ import numpy as np
 
 app = FastAPI(
     title="Ahadu Sentri-AI",
-    description="AI-powered security model for anomaly detection and response.",
+    description= "AI-powered security model for anomaly detection and response.",
     version="1.0.0"
 )
 
