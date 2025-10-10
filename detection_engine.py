@@ -1,77 +1,127 @@
+import argparse
 import json
-import time
+import os
 import random
-from datetime import datetime
-from pathlib import Path
-from sklearn.ensemble import RandomForestClassifier
+import sys
+import time
+from datetime import datetime, timedelta
+from typing import Any, Dict, Iterable
+from uuid import uuid4
+
 import numpy as np
-import joblib
 
-# Load trained model
-# --------------------------
-MODEL_PATH = Path("backend/random_forest_pipeline.pkl")
+# Local imports
+BASE_DIR = os.path.dirname(__file__)
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
-if not MODEL_PATH.exists():
-    raise FileNotFoundError(f"❌ Model file not found at {MODEL_PATH}. "
-                            f"Make sure you exported it from Google Colab.")
-    
-rf_pipeline = joblib.load(MODEL_PATH)
-print("✅ Random Forest pipeline loaded successfully and ready for prediction!")
+from log_utils import append_record, ensure_log_file, get_log_path
+from model_utils import load_model, to_model_input_dataframe, suggest_action
+
+PROCESS_NAMES = [
+    "cmd.exe", "powershell.exe", "explorer.exe", "chrome.exe", "python.exe",
+    "svchost.exe", "wmiprvse.exe", "notepad.exe", "winword.exe", "msiexec.exe"
+]
+PARENT_PROCESSES = [
+    "services.exe", "explorer.exe", "system", "wininit.exe", "taskhostw.exe"
+]
+USERS = ["system", "root", "administrator", "alice", "bob", "charlie", "svc_account"]
+COMMON_PORTS = [0, 80, 443, 22, 445, 3389, 53]
 
 
-# --------------------------
-# Path to store detection results
-# --------------------------
-DATA_FILE = Path("data/detections.json")
-DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-if not DATA_FILE.exists():
-    with open(DATA_FILE, "w") as f:
-        json.dump([], f)
+def generate_random_event() -> Dict[str, Any]:
+    proc = random.choice(PROCESS_NAMES)
+    parent = random.choice(PARENT_PROCESSES)
+    user = random.choice(USERS)
+    port = random.choice(COMMON_PORTS + [random.randint(1024, 65535) for _ in range(3)])
 
-# --------------------------
-# Function to simulate live detections
-# --------------------------
-def generate_random_detection():
-    # Example: 4 dummy feature values (adjust length to your model input)
-    features = np.random.rand(1, rf_pipeline.named_steps['preprocessor'].transformers_[0][2].__len__() + 42)
-    prediction = rf_pipeline.predict(features)[0]
+    base_time = datetime.utcnow() - timedelta(minutes=random.randint(0, 60))
 
-    confidence = float(max(rf_pipeline.predict_proba(features)[0]))
-    action = (
-        "BLOCK" if confidence > 0.8 and prediction != "benign"
-        else "QUARANTINE" if 0.5 < confidence <= 0.8
-        else "ALLOW"
+    return {
+        "process_name": proc,
+        "command_line": f"{proc} /c echo test_{random.randint(1000,9999)}",
+        "user": user,
+        "timestamp": base_time.isoformat() + "Z",
+        "remote_port": port,
+        "parent_process_name": parent,
+        "host": random.choice(["host-a", "host-b", "host-c"]),
+    }
+
+
+def iter_events_from_file(path: str) -> Iterable[Dict[str, Any]]:
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if isinstance(data, dict):
+        data = data.get("events", [])
+    for item in data:
+        yield item
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Ahadu Sentri-AI detection engine")
+    parser.add_argument("--model-path", default=None, help="Path to rf_pipeline.pkl (optional)")
+    parser.add_argument("--log-path", default=None, help="Path to detections_log.json (optional)")
+    parser.add_argument("--num-events", type=int, default=0, help="If >0, run for N events then exit")
+    parser.add_argument("--sleep", type=float, default=2.0, help="Seconds to sleep between events")
+    parser.add_argument("--source", default="random", choices=["random", "file"], help="Event source")
+    parser.add_argument(
+        "--source-file",
+        default=os.path.join(os.path.dirname(BASE_DIR), "data", "sample_events.json"),
+        help="Path to sample events JSON when --source=file",
     )
 
-    detection = {
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
-        "pattern_id": random.randint(1000, 9999),
-        "prediction": prediction,
-        "confidence": round(confidence, 3),
-        "action": action
-    }
-    return detection
+    args = parser.parse_args()
 
-# --------------------------
-# Append detection to history
-# --------------------------
-def save_detection(detection):
-    with open(DATA_FILE, "r+") as f:
-        data = json.load(f)
-        data.append(detection)
-        f.seek(0)
-        json.dump(data, f, indent=2)
+    if args.model_path:
+        os.environ["SENTRI_MODEL_PATH"] = args.model_path
 
-# --------------------------
-# Main streamer loop
-# --------------------------
-def stream_detections(interval=3):
-    print("🚀 Streaming detections... Press Ctrl+C to stop.")
-    while True:
-        detection = generate_random_detection()
-        save_detection(detection)
-        print(f"[+] New detection added: {detection}")
-        time.sleep(interval)
+    loaded = load_model()
+
+    log_path = ensure_log_file(args.log_path)
+    print(f"[Engine] Using log file: {log_path}")
+
+    if args.source == "file":
+        event_iter = iter_events_from_file(args.source_file)
+    else:
+        def _gen():
+            while True:
+                yield generate_random_event()
+        event_iter = _gen()
+
+    produced = 0
+    for raw_event in event_iter:
+        X = to_model_input_dataframe(raw_event, loaded.required_input_columns)
+        try:
+            from model_utils import predict as model_predict
+            label, confidence, proba_map = model_predict(loaded.model, X)
+        except Exception as e:
+            print(f"[Engine] Prediction failed: {e}")
+            label, confidence, proba_map = "unknown", 0.0, {}
+
+        action = suggest_action(label, confidence)
+
+        record = {
+            "id": str(uuid4()),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "event": raw_event,
+            "model_input": X.to_dict(orient="records")[0],
+            "predicted_label": str(label),
+            "confidence_score": float(confidence),
+            "probabilities": proba_map,
+            "suggested_action": action,
+            "user_override_action": None,
+        }
+        append_record(record, path=log_path)
+        print(
+            f"[Engine] {record['id']} label={record['predicted_label']} "
+            f"conf={record['confidence_score']:.2f} action={record['suggested_action']}"
+        )
+
+        produced += 1
+        if args.num_events and produced >= args.num_events:
+            break
+        time.sleep(max(0.0, args.sleep))
+
 
 if __name__ == "__main__":
-    stream_detections()
+    main()
