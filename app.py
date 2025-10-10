@@ -1,67 +1,80 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
 import joblib
+import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+import os
 
-joblib.dump(model, "trained_model.pkl")
-scaler = joblib.load("scaler.pkl")
+# =========================
+# TRAINING SETUP
+# =========================
 
-app = FastAPI()
+# Define dummy training data (for demo/training)
+X_train = np.array([
+    [5, 4, 3],
+    [0, 0, 0],
+    [2, 1, 3],
+    [8, 9, 7]
+])
+y_train = np.array([1, 0, 1, 1])  # 1 = approve, 0 = reject
 
-# Define the input data model with all features
-class Transaction(BaseModel):
-    Time: float
-    V1: float
-    V2: float
-    V3: float
-    V4: float
-    V5: float
-    V6: float
-    V7: float
-    V8: float
-    V9: float
-    V10: float
-    V11: float
-    V12: float
-    V13: float
-    V14: float
-    V15: float
-    V16: float
-    V17: float
-    V18: float
-    V19: float
-    V20: float
-    V21: float
-    V22: float
-    V23: float
-    V24: float
-    V25: float
-    V26: float
-    V27: float
-    V28: float
-    Amount: float
+# Define and train a simple model pipeline
+model = Pipeline([
+    ("scaler", StandardScaler()),
+    ("clf", LogisticRegression())
+])
 
-@app.post("/predict/")
-def predict(transaction: Transaction):
-    try:
-        # Convert the incoming data to a DataFrame
-        data = pd.DataFrame([transaction.dict()])
-        
-        # Preprocess the data
-        scaled_data = scaler.transform(data)
-        
-        # Make a prediction
-        prediction = model.predict(scaled_data)
-        prediction_proba = model.predict_proba(scaled_data)
-        
-        # Return the prediction and probability
-        return {"fraud_prediction": int(prediction[0]), "probability": float(prediction_proba[0][1])}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+model.fit(X_train, y_train)
 
-# Run the FastAPI application
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Save model
+MODEL_PATH = "model_pipeline.pkl"
+joblib.dump(model, MODEL_PATH)
+
+# =========================
+# FASTAPI APP
+# =========================
+
+app = FastAPI(title="Ahadu SentriAI - OpenEDR Model API")
+
+class Event(BaseModel):
+    feature1: float = 0.0
+    feature2: float = 0.0
+    feature3: float = 0.0
+
+
+def load_pipeline():
+    """Load or initialize the model pipeline."""
+    global pipeline
+    if not os.path.exists(MODEL_PATH):
+        joblib.dump(model, MODEL_PATH)
+    if "pipeline" not in globals() or pipeline is None:
+        pipeline = joblib.load(MODEL_PATH)
+    return pipeline
+
+
+def extract_features(event: Event):
+    """Extract input features from event."""
+    return np.array([[event.feature1, event.feature2, event.feature3]])
+
+
+def decide(prediction):
+    """Convert numeric prediction to human-readable decision."""
+    return "approve" if int(prediction[0]) == 1 else "reject"
+
+
+@app.post("/ingest")
+async def ingest(event: Event):
+    """Handle incoming event and return prediction."""
+    model = load_pipeline()
+    features = extract_features(event)
+    prediction = model.predict(features)
+    decision = decide(prediction)
+    return {"decision": decision, "prediction": list(prediction)}
+
+
+@app.get("/")
+async def root():
+    """Health check endpoint."""
+    return {"status": "Ahadu SentriAI API is running 🚀"}
