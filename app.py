@@ -7,9 +7,8 @@ import numpy as np
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
-    description="AI-powered security model for anomaly detection and response: 
-       The Threat Detection API is a robust, AI-powered endpoint designed to analyze incoming data and identify potential security threats in real time. 
-       Built with FastAPI and integrated with a trained machine learning model, it enables automated decision-making for cybersecurity workflows, intrusion detection systems, and enterprise-grade monitoring tools.",
+    description="""AI-powered security model for anomaly detection and response:
+Detects anomalies in real-time and triggers automated responses based on threat level."""
     version="1.0.0"
 )
 
