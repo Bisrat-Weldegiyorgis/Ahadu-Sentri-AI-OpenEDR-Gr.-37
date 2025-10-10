@@ -3,7 +3,11 @@ from pydantic import BaseModel
 import joblib
 import numpy as np
 
-app = FastAPI()
+app = FastAPI(
+    title="Ahadu Sentri-AI",
+    description="AI-powered security model for anomaly detection and response.",
+    version="1.0.0"
+)
 
 # Load model and scaler
 model = joblib.load("trained_model.pkl")
