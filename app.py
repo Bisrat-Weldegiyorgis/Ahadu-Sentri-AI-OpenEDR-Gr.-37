@@ -7,9 +7,14 @@ import numpy as np
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
+    SomeClass(
+    name="EDR",
     description="""AI-powered security model for anomaly detection and response:
-Detects anomalies in real-time and triggers automated responses based on threat level."""
-    version="1.0.0"
+Detects anomalies in real-time and triggers automated responses based on threat level.""",
+    version="1.0"
+)
+
+    
 )
 
 from pydantic import BaseModel
