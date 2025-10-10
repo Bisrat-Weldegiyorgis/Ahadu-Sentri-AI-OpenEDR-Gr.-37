@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import joblib
 import pandas as pd
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+import joblib
 
-# Load the trained model and scaler
-model = joblib.load("trained_model.pkl")
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+joblib.dump(model, "trained_model.pkl")
 scaler = joblib.load("scaler.pkl")
 
 app = FastAPI()
