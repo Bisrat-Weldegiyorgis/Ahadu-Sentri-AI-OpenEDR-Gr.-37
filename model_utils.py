@@ -1,8 +1,3 @@
-(cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF'
-diff --git a/ahadu_sentri_ai/backend/model_utils.py b/ahadu_sentri_ai/backend/model_utils.py
---- a/ahadu_sentri_ai/backend/model_utils.py
-+++ b/ahadu_sentri_ai/backend/model_utils.py
-@@ -0,0 +1,353 @@
 +import os
 +import sys
 +import math
@@ -358,3 +353,4 @@ diff --git a/ahadu_sentri_ai/backend/model_utils.py b/ahadu_sentri_ai/backend/mo
 +
 EOF
 )
+
