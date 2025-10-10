@@ -25,7 +25,7 @@ def predict(data: InputData):
     is_anomaly = anomaly_score > 5.0 or data.income < 1000 or data.age < 18
 
     # Model prediction (using only feature1 and feature2)
-    input_array = np.array([[data.feature1, data.feature2]])
+ input_array = np.array([[data.feature1, data.feature2, data.feature3, data.income]])
     scaled_input = scaler.transform(input_array)
     prediction = model.predict(scaled_input)
 
