@@ -6,16 +6,17 @@ import os
 import numpy as np
 
 app = FastAPI(
-    title="Ahadu SentriAI - Threat Detection API",
-    SomeClass(
-    name="EDR",
+    title="Ahadu SentriAI Automated EDR Security System",
     description="""AI-powered security model for anomaly detection and response:
 Detects anomalies in real-time and triggers automated responses based on threat level.""",
     version="1.0"
 )
 
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Automated EDR Security System"}
+
     
-)
 
 from pydantic import BaseModel
 
