@@ -9,9 +9,9 @@ scaler = joblib.load("scaler (1).pkl")
 
 # Define input schema
 class InputData(BaseModel):
-    feature1: float
-    feature2: float
-    feature3: float
+    age: int
+    income: float
+    gender: str
 
 # Create FastAPI app
 app = FastAPI()
