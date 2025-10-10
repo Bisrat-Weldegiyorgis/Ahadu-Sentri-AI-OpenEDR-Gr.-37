@@ -5,12 +5,13 @@ import numpy as np
 
 # Load model and scaler
 model = joblib.load("trained_model.pkl")
+scaler = joblib.load("scaler (1).pkl")
 
 # Define input schema
 class InputData(BaseModel):
     feature1: float
     feature2: float
-    # Add more fields if your model expects them
+    feature3: float
 
 # Create FastAPI app
 app = FastAPI()
