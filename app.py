@@ -7,14 +7,23 @@ import numpy as np
 model = joblib.load("trained_model.pkl")
 scaler = joblib.load("scaler (1).pkl")
 
-# Define input schema
+app = FastAPI()
+
+# Input schema for anomaly detection
 class InputData(BaseModel):
+    feature1: float
+    feature2: float
+    feature3: float
     age: int
     income: float
     gender: str
 
-# Create FastAPI app
-app = FastAPI()
+@app.post("/predict")
+def predict(data: InputData):
+    # Simple anomaly detection logic
+    anomaly_score = abs(data.feature1) + abs(data.feature2) + abs(data.feature3)
+    is_anomaly = anomaly_score > 5.0 or data.income < 1000 or data.age < 18
+    return {"anomaly_detected": is_anomaly, "score": anomaly_score}
 
 @app.get("/")
 def read_root():
