@@ -19,9 +19,40 @@ class InputData(BaseModel):
     income: float
     gender: str
 
-def load_assets(): 
-    global model, scaler
-    if model is None or scaler is None:
+app = FastAPI(
+    title="Ahadu SentriAI - Threat Detection API",
+    description="AI-powered security model for anomaly detection and response",
+    version="1.0.0"
+)
+
+# Global pipeline variable
+pipeline = None
+
+# Pydantic model with optional features
+class Event(BaseModel):
+    feature1: Optional[float] = 0
+    feature2: Optional[float] = 0
+    feature3: Optional[float] = 0
+
+
+def convert_to_dataframe(incoming_data):
+    """
+    Convert incoming data to pandas DataFrame
+    """
+    if isinstance(incoming_data, dict):
+        df = pd.DataFrame([incoming_data])
+        return df
+    elif isinstance(incoming_data, list):
+        df = pd.DataFrame(incoming_data)
+        return df
+    else:
+        raise ValueError("Data must be a dictionary or list of dictionaries")
+# Define the input data model with all feature
+
+# Lazy-load the pipeline
+def load_pipeline():
+    global pipeline
+    if pipeline is None:
         model_path = "trained_model.pkl"
         scaler_path = "scaler.pkl"  # Rename from "scaler (1).pkl" for clarity
         if not os.path.exists(model_path) or not os.path.exists(scaler_path):
