@@ -8,8 +8,8 @@ import logging
 
 app = FastAPI()
 
-model = None
-scaler = None
+model = joblib.load("trained_model.pkl")
+scaler = joblib.load("trained_scaler.pkl")
 
 class InputData(BaseModel):
     feature1: float
