@@ -19,7 +19,7 @@ class InputData(BaseModel):
     income: float
     gender: str
 
-def load_assets():
+def load_assets(): 
     global model, scaler
     if model is None or scaler is None:
         model_path = "trained_model.pkl"
