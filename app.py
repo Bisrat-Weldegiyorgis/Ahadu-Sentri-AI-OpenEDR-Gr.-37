@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import joblib
 import numpy as np
@@ -27,6 +28,7 @@ class InputData(BaseModel):
     income: float
     gender: str
 
+
 @app.post("/predict")
 def predict(data: InputData):
     if not load_assets():
@@ -46,6 +48,11 @@ def predict(data: InputData):
         "prediction": int(prediction[0])
     }
 
-@app.get("/")
-def read_root():
-    return {"message": "EDR system is live"}
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return """
+    <h1>EDR System is Live</h1>
+    <p>Welcome to your FastAPI app!</p>
+    <p>Try <a href='/dashboard'>/dashboard</a></p>
+    """
+
