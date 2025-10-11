@@ -1,7 +1,4 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import joblib
@@ -9,26 +6,19 @@ import numpy as np
 import os
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-    
 model = None
 scaler = None
 
 def load_assets():
-
-    global model, scaler
-    if model is None or scaler is None:
-        if not os.path.exists("trained_model.pkl") or not os.path.exists("scaler (1).pkl"):
-            print("[Warning] Model or scaler not found, running in mock mode.")
-            return False
-        model = joblib.load("trained_model.pkl")
-        scaler = joblib.load("scaler (1).pkl")
-    return True
+    global model, scaler 
+    if model is None or scaler is None:
+        if not os.path.exists("trained_model.pkl") or not os.path.exists("scaler (1).pkl"):
+            print("[Warning] Model or scaler not found, running in mock mode.")
+            return False
+        model = joblib.load("trained_model.pkl")
+        scaler = joblib.load("scaler (1).pkl")
+    return True
 
 class InputData(BaseModel):
     feature1: float
