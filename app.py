@@ -35,19 +35,6 @@ def predict(data: InputData):
         # Mock result when model is missing
         return {"error": "Model not found in CI environment", "prediction": 0}
 
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard():
-    return """
-    <html>
-        <head><title>Dashboard</title></head>
-        <body>
-            <h1>EDR Dashboard</h1>
-            <p>Model status: {}</p>
-            <p>Scaler status: {}</p>
-        </body>
-    </html>
-    """.format("Loaded" if model else "Missing", "Loaded" if scaler else "Missing")
-
     
     anomaly_score = abs(data.feature1) + abs(data.feature2) + abs(data.feature3)
     is_anomaly = anomaly_score > 5.0 or data.income < 1000 or data.age < 18
@@ -61,6 +48,22 @@ def dashboard():
         "score": anomaly_score,
         "prediction": int(prediction[0])
     }
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard():
+    return """
+    <html>
+        <head><title>Dashboard</title></head>
+        <body>
+            <h1>EDR Dashboard</h1>
+            <p>Model status: {}</p>
+            <p>Scaler status: {}</p>
+        </body>
+    </html>
+    """.format("Loaded" if model else "Missing", "Loaded" if scaler else "Missing")
+
+
 
 @app.get("/", response_class=HTMLResponse)
 def root():
