@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ahadu Sentri AI – Threat Detection Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Threat Detection Dashboard</h1>
+        <p>Enter a threat vector to analyze its risk level.</p>
+
+        <form action="/predict" method="post">
+            <label for="input_data">Threat Vector:</label>
+            <input type="text" id="input_data" name="input_data" required>
+            <button type="submit">Analyze</button>
+        </form>
+
+        {% if prediction %}
+        <div class="result">
+            <h2>Prediction Result</h2>
+            <p>{{ prediction }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
