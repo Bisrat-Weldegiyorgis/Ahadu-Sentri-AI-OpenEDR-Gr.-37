@@ -20,7 +20,7 @@ model = None
 scaler = None
 
 def load_assets():
-    global model, scaler
+   global model, scaler
     if model is None or scaler is None:
         if not os.path.exists("trained_model.pkl") or not os.path.exists("scaler (1).pkl"):
             print("[Warning] Model or scaler not found, running in mock mode.")
