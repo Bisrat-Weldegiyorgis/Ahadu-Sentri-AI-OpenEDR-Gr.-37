@@ -38,7 +38,12 @@ def startup_event():
 @app.post("/predict")
 def predict(data: InputData):
     if not load_assets():
-        return {"error": "Model not found in CI environment", "prediction": 0}
+        return {
+    "error": "Model not found in CI environment",
+    "anomaly_detected": False,
+    "score": 0.0,
+    "prediction": 0
+}
 
     anomaly_score = abs(data.feature1) + abs(data.feature2) + abs(data.feature3)
     is_anomaly = anomaly_score > 5.0 or data.income < 1000 or data.age < 18
