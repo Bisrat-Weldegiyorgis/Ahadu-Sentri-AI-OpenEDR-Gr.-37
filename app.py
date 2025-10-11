@@ -29,25 +29,24 @@ class InputData(BaseModel):
     gender: str
 
 
+
+
 @app.post("/predict")
-def predict(data: InputData):
-    if not load_assets():
-        # Mock result when model is missing
-        return {"error": "Model not found in CI environment", "prediction": 0}
+async def predict(data: InputData):
+    input_array = np.array([[data.feature1, data.feature2, data.feature3]])
 
-    
-    anomaly_score = abs(data.feature1) + abs(data.feature2) + abs(data.feature3)
-    is_anomaly = anomaly_score > 5.0 or data.income < 1000 or data.age < 18
+    if model is None or scaler is None:
+        print("Warning: Model or scaler not found, running in mock mode.")
+        # Simple mock logic: flag as anomaly if any feature is unusually high
+        threshold = 1000
+        is_anomalous = any(x > threshold for x in input_array[0])
+        return {"anomaly_detected": is_anomalous}
 
-    input_array = np.array([[data.feature1, data.feature2, data.feature3, data.income]])
+    # prediction logic
     scaled_input = scaler.transform(input_array)
     prediction = model.predict(scaled_input)
-
-    return {
-        "anomaly_detected": is_anomaly,
-        "score": anomaly_score,
-        "prediction": int(prediction[0])
-    }
+    is_anomalous = bool(prediction[0])
+    return {"anomaly_detected": is_anomalous}
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
