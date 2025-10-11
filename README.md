@@ -18,9 +18,13 @@ Requirements
 * Uvicorn
 
 Installation process 
- 1. Clone the repository
+1. **Clone the repository**
      ```bash
-     https://github.com/Bisrat-Weldegiyorgis/Ahadu-Sentri-AI-OpenEDR-Gr.-37.git
+     git clone https://github.com/Bisrat-Weldegiyorgis/Ahadu-Sentri-AI-OpenEDR-Gr.-37.git
+     ```
+     One the file exists use this directory
+     ```bash
+     cd Ahadu-Sentri-AI-OpenEDR-Gr.-37
      ```
 2. **Create and activate a virtual environment:**
    ```bash
@@ -35,8 +39,26 @@ Installation process
 
 4. **Run the FastAPI application:**
    ```bash
-   uvicorn main:app --reload
-   ```
+   uvicorn app:app
+    ```
 
-5. **Access the API:**
+6. **Access the API:**
    Open your browser and go to `http://127.0.0.1:8000/docs` to view the interactive API documentation.
+
+
+   ## Usage
+
+### Making Predictions
+
+You can use `curl`, Postman, or any other API testing tool to make predictions. Here's an example `curl` command:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict/ \
+-H "Content-Type: application/json" \
+-d '{
+    "V1": -1.359807134,
+    "V2": -0.072781173,
+    ...
+    "Amount": 149.62
+}'
+```

@@ -1,9 +1,23 @@
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from typing import Optional
 import joblib
-import os
 import numpy as np
+import os
+import logging
+
+app = FastAPI()
+
+model = joblib.load("trained_model.pkl")
+scaler = joblib.load("trained_scaler.pkl")
+
+class InputData(BaseModel):
+    feature1: float
+    feature2: float
+    feature3: float
+    age: int
+    income: float
+    gender: str
 
 app = FastAPI(
     title="Ahadu SentriAI - Threat Detection API",
@@ -40,29 +54,45 @@ def load_pipeline():
     global pipeline
     if pipeline is None:
         model_path = "trained_model.pkl"
-        if not os.path.exists(model_path):
-            raise RuntimeError(f"Model file '{model_path}' not found.")
-        try:
-            pipeline = joblib.load(model_path)
-        except Exception as e:
-            raise RuntimeError(f"Failed to load model: {e}")
-    return pipeline
+        scaler_path = "scaler.pkl"  # Rename from "scaler (1).pkl" for clarity
+        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+            logging.warning("Model or scaler not found, running in mock mode.")
+            return False
+        model = joblib.load(model_path)
+        scaler = joblib.load(scaler_path)
+    return True
 
-# Extract features from the Pydantic model
-def extract_features(event: Event):
-    return np.array([[event.feature1, event.feature2, event.feature3]])
+@app.on_event("startup")
+def startup_event():
+    load_assets()
 
-# Make decision based on prediction
-def decide(prediction):
-    # Example logic
-    return "approve" if prediction[0] == 1 else "reject"
+@app.post("/predict")
+def predict(data: InputData):
+    if not load_assets():
+        return {
+    "error": "Model not found in CI environment",
+    "anomaly_detected": False,
+    "score": 0.0,
+    "prediction": 0
+}
 
-# Ingest endpoint
-@app.post("/ingest")
-async def ingest(event: Event):
-    model = load_pipeline()
-    features = extract_features(event)
-    prediction = model.predict(features)
-    decision = decide(prediction)
-    return {"decision": decision, "prediction": list(prediction)}
+    anomaly_score = abs(data.feature1) + abs(data.feature2) + abs(data.feature3)
+    is_anomaly = anomaly_score > 5.0 or data.income < 1000 or data.age < 18
 
+    input_array = np.array([[data.feature1, data.feature2, data.feature3, data.income]])
+    scaled_input = scaler.transform(input_array)
+    prediction = model.predict(scaled_input)
+
+    return {
+        "anomaly_detected": is_anomaly,
+        "score": anomaly_score,
+        "prediction": int(prediction[0])
+    }
+
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return """
+    <h1>EDR System is Live</h1>
+    <p>Welcome to your FastAPI app!</p>
+    <p>Try <a href='/dashboard'>/dashboard</a></p>
+    """
