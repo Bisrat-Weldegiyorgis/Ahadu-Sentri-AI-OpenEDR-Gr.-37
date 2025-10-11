@@ -44,3 +44,21 @@ Installation process
 
 6. **Access the API:**
    Open your browser and go to `http://127.0.0.1:8000/docs` to view the interactive API documentation.
+
+
+   ## Usage
+
+### Making Predictions
+
+You can use `curl`, Postman, or any other API testing tool to make predictions. Here's an example `curl` command:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict/ \
+-H "Content-Type: application/json" \
+-d '{
+    "V1": -1.359807134,
+    "V2": -0.072781173,
+    ...
+    "Amount": 149.62
+}'
+```
