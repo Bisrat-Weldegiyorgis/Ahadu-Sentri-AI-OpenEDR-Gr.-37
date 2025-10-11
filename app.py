@@ -17,7 +17,7 @@ def load_assets():
             print("[Warning] Model or scaler not found, running in mock mode.")
             return False
         model = joblib.load("trained_model.pkl")
-        scaler = joblib.load("scaler (1).pkl")
+        scaler = joblib.load("trained_scaler.pkl")
     return True
 
 class InputData(BaseModel):
