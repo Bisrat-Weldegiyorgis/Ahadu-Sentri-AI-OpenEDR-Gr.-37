@@ -5,6 +5,14 @@ import joblib
 import numpy as np
 import os
 import logging
+import traceback
+
+try:
+    model = joblib.load("trained_model.pkl")
+except Exception as e:
+    traceback.print_exc()
+    raise RuntimeError(f"Failed to load model: {e}")
+
 
 app = FastAPI()
 
