@@ -50,15 +50,3 @@ Installation process
 
 ### Making Predictions
 
-You can use `curl`, Postman, or any other API testing tool to make predictions. Here's an example `curl` command:
-
-```bash
-curl -X POST http://127.0.0.1:8000/predict/ \
--H "Content-Type: application/json" \
--d '{
-    "V1": -1.359807134,
-    "V2": -0.072781173,
-    ...
-    "Amount": 149.62
-}'
-```
