@@ -1,0 +1,61 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "issuer",
+    "outputs": [
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "student", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "course", "type": "string" },
+      { "indexed": false, "internalType": "uint256", "name": "year", "type": "uint256" }
+    ],
+    "name": "CertificateIssued",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "student", "type": "address" }
+    ],
+    "name": "getCertificate",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "student", "type": "address" },
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "course", "type": "string" },
+          { "internalType": "uint256", "name": "year", "type": "uint256" },
+          { "internalType": "bool", "name": "issued", "type": "bool" }
+        ],
+        "internalType": "struct StudentCertificate.Certificate",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "student", "type": "address" },
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "course", "type": "string" },
+      { "internalType": "uint256", "name": "year", "type": "uint256" }
+    ],
+    "name": "issueCertificate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
